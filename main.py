@@ -1,23 +1,63 @@
 from fastapi import FastAPI
 from fastapi.params import Body
 from pydantic import BaseModel
+from typing import Optional
+from random import randrange
 
 app = FastAPI()
+
 
 class Post(BaseModel):
     title: str
     content: str
+    published: bool = True
+    rating: Optional[int] = None
 
-@app.get("/") # decorator
+
+my_posts = [
+    {
+        "title": "title of post 1",
+        "content": "content of the post 1",
+        "id": 1
+    },
+    {
+        "title": "favourite foods",
+        "content": "I like pizza",
+        "id": 2
+    }
+]
+
+
+def find_post(id):
+    for p in my_posts:
+        if p['id'] == id:
+            return p
+
+
+@app.get("/")
 async def root():
     return {"message": "hello world!"}
 
+
 @app.get("/posts")
 def get_posts():
-    return {"data": "This is your post"}
+    return {"data": my_posts}
+
 
 @app.post("/createposts")
-def create_posts(payload: dict = Body (...)): # this is to retrieve that body data
-    print(payload)
-    return {"new_post" : f"title {payload['title']} content: {payload['content']}"}
-# title str, content str
+def create_posts(post: Post):
+    post_dict = post.dict()
+    post_dict["id"] = randrange(0, 1000000)
+
+    my_posts.append(post_dict)
+
+    return {"data": post_dict}
+
+
+@app.get("/posts/{id}")
+def get_post(id: int):
+    post = find_post(id)
+
+    print(post)
+
+    return {"post_detail": post}
