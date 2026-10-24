@@ -33,6 +33,10 @@ def find_post(id):
         if p['id'] == id:
             return p
 
+def find_index_post(id):
+    for i , p in enumerate(my_posts):
+        if p['id'] == id:
+            return i
 
 @app.get("/")
 async def root():
@@ -44,7 +48,7 @@ def get_posts():
     return {"data": my_posts}
 
 
-@app.post("/createposts")
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
     post_dict = post.dict()
     post_dict["id"] = randrange(0, 1000000)
@@ -70,3 +74,14 @@ def get_post(id: int):
     print(post)
 
     return {"post_detail": post}
+
+@app.delete("/posts/{id}")
+def delete_post(id: int, status_code=status.HTTP_204_NO_CONTENT):
+    # find the index in the array that has the content to be removed
+    index = find_index_post(id)
+
+    if index == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"not found")
+
+    my_posts.pop(index)
+    return {'message': 'post was successfully deleted'}
