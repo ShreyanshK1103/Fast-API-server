@@ -77,7 +77,7 @@ def get_post(id: int):
 
 @app.delete("/posts/{id}")
 def delete_post(id: int, status_code=status.HTTP_204_NO_CONTENT):
-    # find the index in the array that has the content to be removed
+    # find the index in the array that has the content to be removed.....
     index = find_index_post(id)
 
     if index == None:
